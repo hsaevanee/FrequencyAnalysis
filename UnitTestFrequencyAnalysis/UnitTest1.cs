@@ -43,5 +43,15 @@ namespace UnitTestFrequencyAnalysis
             string txtResult = FrequencyAnalysis.FrequencyAnalysis.ReadTextFile("Sample3.txt", keyPress);
 
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(FileNotFoundException), "[textfile is not in directory]")]
+        public void TestReadTextFile()
+        {
+            ConsoleKeyInfo keyPress = new ConsoleKeyInfo('Y', ConsoleKey.Y, false, false, false);
+
+            string txtResult = FrequencyAnalysis.FrequencyAnalysis.ReadTextFile("Sample3.txt", keyPress);
+
+        }
     }
 }
