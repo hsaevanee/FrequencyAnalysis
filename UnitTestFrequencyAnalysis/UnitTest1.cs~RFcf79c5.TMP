@@ -11,40 +11,33 @@ namespace UnitTestFrequencyAnalysis
     [TestClass]
     public class UnitTest1
     {
-        public const string IndexOutOfRangeExceptionMessage = "Please input text file name";
-        public const string ExceptionMessage = "Please input .txt file"; 
+        public const string ExceptionMessage = "Please insert text file"; 
 
         [TestMethod]
         public void TestFrequencyAnalysisMethod()
         {
            
-            string txtResult = "Thisisatesttext";
+            string txtResult = "The quick brown fox jumped over the lazy dog";
+ 
+            txtResult = Regex.Replace(txtResult, @"\s", "");
+             
+            Dictionary<char, int> expected = txtResult.GroupBy(c => c).ToDictionary(grp => grp.Key, grp => grp.Count());
 
-            Dictionary<char, int> expected = new Dictionary<char, int>();
-            expected.Add('t', 4);
-            expected.Add('s', 3);
-            expected.Add('i', 2);
-            expected.Add('e', 2);
-            expected.Add('x', 1);
-            expected.Add('h', 1);
-            expected.Add('a', 1);
-            expected.Add('T', 1);
+            expected = (from entry in expected orderby entry.Value descending, Convert.ToByte(entry.Key) descending select entry).Take(10).ToDictionary(pair => pair.Key, pair => pair.Value);
 
             Dictionary<char, int> actual = FrequencyAnalysis.FrequencyAnalysis.FrequencyAnalyse(txtResult);
 
             CollectionAssert.AreEquivalent(expected.ToList(), actual.ToList());
-            CollectionAssert.AreEqual(expected.ToList(), actual.ToList());
 
             txtResult = txtResult.ToLower();
 
             expected = txtResult.GroupBy(c => c).ToDictionary(grp => grp.Key, grp => grp.Count());
 
-            expected = expected.OrderByDescending(x => x.Value).ThenByDescending(x => x.Key).Take(10).ToDictionary(pair => pair.Key, pair => pair.Value);
+            expected = (from entry in expected orderby entry.Value descending, Convert.ToByte(entry.Key) descending select entry).Take(10).ToDictionary(pair => pair.Key, pair => pair.Value);
 
             actual = FrequencyAnalysis.FrequencyAnalysis.FrequencyAnalyse(txtResult);
 
             CollectionAssert.AreEquivalent(expected.ToList(), actual.ToList());
-            CollectionAssert.AreEqual(expected.ToList(), actual.ToList());
 
         }
 
@@ -55,19 +48,11 @@ namespace UnitTestFrequencyAnalysis
             ConsoleKeyInfo keyPress = new ConsoleKeyInfo('Y', ConsoleKey.Y, false, false, false);
 
             string txtResult = FrequencyAnalysis.FrequencyAnalysis.ReadTextFile("Sample3.txt", keyPress);
-        }
-
-        [TestMethod]
-        public void TestReadTextFile2()
-        {
-            ConsoleKeyInfo keyPress = new ConsoleKeyInfo('Y', ConsoleKey.Y, false, false, false);
-            string expected = "The three did feed the deerThe quick brown fox jumped over the lazy dog";
-            string txtResult = FrequencyAnalysis.FrequencyAnalysis.ReadTextFile("Sample.txt", keyPress);
-            Assert.IsTrue(expected.SequenceEqual(txtResult));
 
         }
 
         [TestMethod]
+        //[ExpectedException(typeof(IndexOutOfRangeException), "Please insert text file")]
         public void TestCheckFileNameFormat()
         {
             string[] args = { };
@@ -79,12 +64,11 @@ namespace UnitTestFrequencyAnalysis
             catch (IndexOutOfRangeException)
             {
                 // assert  
-                StringAssert.Contains("Please input text file name", IndexOutOfRangeExceptionMessage);
+                StringAssert.Contains("Please insert text file", ExceptionMessage);
                 return;
             }
             Assert.Fail("No exception was thrown.");  
         }
-
         [TestMethod]
         public void TestCheckFileNameFormat2()
         {
@@ -94,10 +78,10 @@ namespace UnitTestFrequencyAnalysis
             {
                 FrequencyAnalysis.FrequencyAnalysis.CheckFileNameFormat(args);
             }
-            catch (Exception)
+            catch (IndexOutOfRangeException)
             {
                 // assert  
-                StringAssert.Contains("Please input .txt file", ExceptionMessage);
+                StringAssert.Contains("Please insert text file", ExceptionMessage);
                 return;
             }
             Assert.Fail("No exception was thrown.");
